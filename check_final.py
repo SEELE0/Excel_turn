@@ -1,7 +1,17 @@
+# check表格
+# 逻辑暂时没有理清
+# 主要是因为想不到什么办法缩短决策树
+# 暂时不要用 没有更改源代码
+# 可以设置状态位来进行列分配?
+# 通过状态为  记录 需要检查几个权限
+# 分配状态数量 * 2 +2 个列
+# 状态
+
 import pandas as pd
 from openpyxl import load_workbook
 
-
+print("")
+input("申请了哪些权限：")
 # 读取初始表和参数表
 tb1 = pd.read_excel('source/tb1.xlsx')
 source1 = pd.read_excel('source/source1.xlsx')
