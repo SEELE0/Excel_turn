@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 
 from openpyxl import load_workbook
+from openpyxl.utils import get_column_letter
 
 # # 定义除法运算函数
 # def safe_divide(numerator, denominator):
@@ -33,7 +34,6 @@ merged_df.drop(columns=['Key'], inplace=True)
 
 # 将NaN替换为#N/A
 merged_df = merged_df.fillna('#N/A')
-
 
 # 定义一个函数来处理指定的列
 # def process_specified_columns(df):
@@ -81,3 +81,46 @@ merged_df.to_excel(output_file, index=False)
 #
 # # 获取列数  也就是当前
 # total_columns = ws.max_column
+
+# 读取output_file
+output_df = pd.read_excel('data_volume_check/Merged_File.xlsx')
+# 在顶部插入一行，将所有其他行下移
+output_df = pd.concat([pd.DataFrame([output_df.columns.tolist()], columns=output_df.columns), output_df],
+                      ignore_index=True)
+# 获取output_file的最后两列
+last_two_columns = output_df.iloc[:, -2:]
+
+# 读取file1的C360-2.0工作表
+file1_df = pd.read_excel('data_volume_check/File1.xlsx', sheet_name='C360-2.0')
+
+# 将最后两列添加到C360-2.0工作表的末尾
+file1_df = pd.concat([file1_df, last_two_columns], axis=1)
+
+# 获取新添加的列的列名
+new_column_names = file1_df.columns[-2:]
+
+# 将新添加的列的列名设置为空
+file1_df.rename(columns={name: '' for name in new_column_names}, inplace=True)
+# 保存结果到新的Excel文件
+file1_df.to_excel('data_volume_check/File1.xlsx', sheet_name='C360-2.0', index=False)
+
+## 有 bug  暂时自己在 excel  里  编写函数拉取吧
+# wb = load_workbook('data_volume_check/File1.xlsx')
+# ws = wb['C360-2.0']  # 获取C360-2.0工作表
+# # 获取当前最后一列的索引
+# last_column_index = ws.max_column
+# print(last_column_index)
+#
+# last_column_letter = get_column_letter(last_column_index)
+#
+# # for row in range(2, ws.max_row + 1):
+# #     ws[f'{last_column_index+1}{row}'] = f'=IF((last_column_index{row} - {last_column_index-2}{row})/({last_column_index-2}{row} - {last_column_index-4}{row}))>1.5,1,0)'
+# #
+# #     ws[f'{last_column_index+2}{row}'] = f'=(last_column_index{row} - {last_column_index-2}{row})/last_column_index{row}'
+#
+# for row in range(2, ws.max_row + 1):
+#     ws[f'{get_column_letter(last_column_index+1)}{row}'] = f'=IF(({get_column_letter(last_column_index)}{row} - {get_column_letter(last_column_index-2)}{row})/({get_column_letter(last_column_index-2)}{row} - {get_column_letter(last_column_index-4)}{row}))>1.5,1,0)'
+#     ws[f'{get_column_letter(last_column_index+2)}{row}'] = f'=({get_column_letter(last_column_index)}{row} - {get_column_letter(last_column_index-2)}{row})/{get_column_letter(last_column_index)}{row}'
+#
+#
+# wb.save('data_volume_check/test.xlsx')
